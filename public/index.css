@@ -1,0 +1,18 @@
+.imgPoster {
+    width: 35%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+.grey {
+   background-color: gray !important;
+}
+
+.checked {
+    color: orange;
+}
+
+.star-size {
+    font-size: 10px;
+}
