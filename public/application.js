@@ -14,7 +14,7 @@ class MyApplication {
     getMovie(movieName) {
         $.ajax({
             // url: 'https://www.omdbapi.com/?t='+movieName+'&apikey=d5e2f2b',
-            url: '/getMovies',
+            url: `/movies`,
             data: {"name" : movieName},
             method: 'GET',
             success: (movie) => {
@@ -26,6 +26,41 @@ class MyApplication {
                 console.log(this);
                 //append row with movie data
                 this.renderMovieRow(movie);
+            },
+            error: () => {
+                this.onError()
+            }
+        });
+    }
+
+    deleteMovie(Title) {
+        $.ajax({
+            url: `/movies/${Title}`,
+            method: 'DELETE',
+            success: () => {
+                console.log('success delete request')
+            },
+            error: () => {
+                this.onError()
+            }
+        });
+    }
+
+    editMovieInDb(array) {
+        let myTitle = $(array[0]).text();
+        console.log(myTitle);
+        let data = {"title":$(array[0]).text(), 
+        "released":$(array[1]).text(), 
+        "actors":$(array[2]).text(), 
+        "director":$(array[3]).text()};
+        console.log(data);
+        $.ajax({
+            url: `/movies/${myTitle}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: () => {
+                console.log('success put request')
             },
             error: () => {
                 this.onError()
@@ -84,8 +119,14 @@ class MyApplication {
     }
 
     addEventListnerRemoveMovie() {
+        let self = this;
+        console.log(self);
         $('#myTable').on('click', '.removeRow', function(){
-        $(this).parent().closest('tr').remove();
+            let childrenArray1 = $(this).parent().closest('tr').children();
+            const title = $(childrenArray1[0]).text()
+            console.log(title);
+            self.deleteMovie(title);
+            $(this).parent().closest('tr').remove();
         }); 
     }
 
@@ -95,19 +136,20 @@ class MyApplication {
         $("#exampleModalEdit").on('show.bs.modal', function (event) {
             const button = $(event.relatedTarget); // Button that triggered the modal
             const row = button.closest('tr'); // selected row
-            let childrenArray = row.children(); //returnarray form columns of selected row
-            console.log(childrenArray);
-            self.fillUpdateModalInputs(childrenArray);
+            var childrenArray2 = row.children(); //returnarray form columns of selected row
+            console.log('children array', childrenArray2);
+            self.fillUpdateModalInputs(childrenArray2);
             //write to row columns the modified/unmodified data
             $('#updateMovie').on('click', function() {
-                self.updateRowWithInputsFromModal(childrenArray);
+                self.updateRowWithInputsFromModal(childrenArray2);               
             });    
         }); 
     }
 
     fillUpdateModalInputs(childrenArray) {
+        console.log(childrenArray);
         //fill input modal inputs
-        $("#edit-title").val($(childrenArray[0]).text());  
+        // $("#edit-title").val($(childrenArray[0]).text());  
         $("#edit-released").val($(childrenArray[1]).text());  
         $("#edit-actors").val($(childrenArray[2]).text());  
         $("#edit-director").val($(childrenArray[3]).text()); 
@@ -115,10 +157,11 @@ class MyApplication {
 
     updateRowWithInputsFromModal(childrenArray) {
         //update row data           
-        childrenArray.eq(0).text($("#edit-title").val());
+        // childrenArray.eq(0).text($("#edit-title").val());
         childrenArray.eq(1).text($("#edit-released").val());
         childrenArray.eq(2).text($("#edit-actors").val());
         childrenArray.eq(3).text($("#edit-director").val());
+        this.editMovieInDb(childrenArray);
         $("#exampleModalEdit").modal('toggle');
     }
 
