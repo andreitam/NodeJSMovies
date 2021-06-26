@@ -73,9 +73,9 @@ router.get('/movies', (req, res) => {
       
 });
 
-router.delete('/movies/:name', (req,res) => {
-    const {name} = req.params;
-    console.log(name);
+router.delete('/movies/:id', (req,res) => {
+    const {id} = req.params;
+    console.log(id);
 
     // 1. connect to db
     var connection = mysql.createConnection({
@@ -92,7 +92,7 @@ router.delete('/movies/:name', (req,res) => {
         console.log("Connected to the database!");
         //2. query movies table
         const deleteMoviesSqlQuery = `delete from si.movies
-        where title='${name}'
+        where imdbID='${id}'
         `
         connection.query(deleteMoviesSqlQuery, function (err, results) {
             // if query was successfully done, err is null 
@@ -113,9 +113,9 @@ router.delete('/movies/:name', (req,res) => {
     });
 });
 
-router.put('/movies/:name', (req,res) => {
-    const {name} = req.params;
-    console.log(name);
+router.put('/movies/:id', (req,res) => {
+    const {id} = req.params;
+    console.log('id visible', id);
 
     // 1. connect to db
     const {
@@ -141,7 +141,7 @@ router.put('/movies/:name', (req,res) => {
         }
         console.log("Connected to the database!");
         //2. query movies table
-        const updateMoviesSqlQuery = `UPDATE si.movies SET released = '${sqlReleased}', actors = '${actors}', director = '${director}' WHERE title='${name}'`;
+        const updateMoviesSqlQuery = `UPDATE si.movies SET released = '${sqlReleased}', actors = '${actors}', director = '${director}' WHERE imdbID='${id}'`;
         connection.query(updateMoviesSqlQuery, function (err, results) {
             // if query was successfully done, err is null 
             if (err) {

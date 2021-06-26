@@ -33,9 +33,9 @@ class MyApplication {
         });
     }
 
-    deleteMovie(Title) {
+    deleteMovie(id) {
         $.ajax({
-            url: `/movies/${Title}`,
+            url: `/movies/${id}`,
             method: 'DELETE',
             success: () => {
                 console.log('success delete request')
@@ -46,7 +46,7 @@ class MyApplication {
         });
     }
 
-    editMovieInDb(array) {
+    editMovieInDb(array, id) {
         let myTitle = $(array[0]).text();
         console.log(myTitle);
         let data = {"title":$(array[0]).text(), 
@@ -55,7 +55,7 @@ class MyApplication {
         "director":$(array[3]).text()};
         console.log(data);
         $.ajax({
-            url: `/movies/${myTitle}`,
+            url: `/movies/${id}`,
             method: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(data),
@@ -74,7 +74,7 @@ class MyApplication {
 
     renderMovieRow(movie) {
         const {Title, Released, Actors, Director, Poster, imdbID, imdbRating} = movie;                      
-        $('#myTbody').append(`<tr>
+        $('#myTbody').append(`<tr data-id="${imdbID}">
                         <td>${Title}</td>
                         <td>${Released}</td>
                         <td>${Actors}</td>
@@ -125,7 +125,9 @@ class MyApplication {
             let childrenArray1 = $(this).parent().closest('tr').children();
             const title = $(childrenArray1[0]).text()
             console.log(title);
-            self.deleteMovie(title);
+            const id = button.closest('tr').attr('data-id');
+            console.log('id from remove', id);
+            self.deleteMovie(id);
             $(this).parent().closest('tr').remove();
         }); 
     }
@@ -138,10 +140,12 @@ class MyApplication {
             const row = button.closest('tr'); // selected row
             var childrenArray2 = row.children(); //returnarray form columns of selected row
             console.log('children array', childrenArray2);
+            const id = button.closest('tr').attr('data-id');
+            console.log('id from edit', id);
             self.fillUpdateModalInputs(childrenArray2);
             //write to row columns the modified/unmodified data
             $('#updateMovie').on('click', function() {
-                self.updateRowWithInputsFromModal(childrenArray2);               
+                self.updateRowWithInputsFromModal(childrenArray2, id);               
             });    
         }); 
     }
@@ -155,13 +159,13 @@ class MyApplication {
         $("#edit-director").val($(childrenArray[3]).text()); 
     }
 
-    updateRowWithInputsFromModal(childrenArray) {
+    updateRowWithInputsFromModal(childrenArray, id) {
         //update row data           
         // childrenArray.eq(0).text($("#edit-title").val());
         childrenArray.eq(1).text($("#edit-released").val());
         childrenArray.eq(2).text($("#edit-actors").val());
         childrenArray.eq(3).text($("#edit-director").val());
-        this.editMovieInDb(childrenArray);
+        this.editMovieInDb(childrenArray,id);
         $("#exampleModalEdit").modal('toggle');
     }
 
