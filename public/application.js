@@ -5,27 +5,67 @@ class MyApplication {
 
     init() {
         console.log('Numele aplicatiei este: ' + this.name);
-        this.addEventListnerAddMovie();
+        this.getDirectors();
+        // this.addEventListnerAddMovie();
         this. addEventListnerHideModal();
         this.addEventListnerRemoveMovie();
         this.addEventListnerEditInModal();  
+        this.eventListnerClickDirectorRow();
     }
 
-    getMovie(movieName) {
+    getDirectors() {
+        console.log('inside ajax call')
         $.ajax({
-            // url: 'https://www.omdbapi.com/?t='+movieName+'&apikey=d5e2f2b',
-            url: `/movies`,
-            data: {"name" : movieName},
+            url: `/director`,
             method: 'GET',
-            success: (movie) => {
+            success: (directors) => {
                 //check json response is not error object, jquery ajax will execute success if server returns error object
-                if(!movie.hasOwnProperty('Title')) {
+                if(directors.length===0) {
                     return;
                 }
-                console.log('response', movie);
-                console.log(this);
+                console.log('response', directors);
                 //append row with movie data
-                this.renderMovieRow(movie);
+                directors.forEach((element) => this.renderDirectorsRow(element));
+
+            },
+            error: () => {
+                this.onError()
+            }
+        });
+    }
+
+    renderDirectorsRow(directors) {
+        const {director_id, director_name, date_of_birth} = directors;  
+        //convert sql date to string  
+        const date = date_of_birth.toString().slice(0,10);                  
+        $('#myTbodyDirectors').append(`<tr data-id="${director_id}">
+                        <td>${director_name}</td>
+                        <td>${date}</td>`
+        );       
+    }
+
+    eventListnerClickDirectorRow() {
+        let self = this;
+        $('#myTableDirectors').on('click', 'tr',  function(event) {
+            $('#myTbody').children('tr').remove();
+            const id = $(this).attr('data-id');
+            self.getMovie(id);
+        });
+    }
+
+    getMovie(id) {
+        $.ajax({
+            url: `/director/${id}`,
+            method: 'GET',
+            success: (movies) => {
+                console.log(movies);
+                //check json response is not error object, jquery ajax will execute success if server returns error object
+                if(movies.length === 0) {
+                    return;
+                }
+                console.log('response', movies);
+                //append row with movie data
+                movies.forEach((element) => this.renderMovieRow(element));
             },
             error: () => {
                 this.onError()
@@ -47,8 +87,6 @@ class MyApplication {
     }
 
     editMovieInDb(array, id) {
-        let myTitle = $(array[0]).text();
-        console.log(myTitle);
         let data = {"title":$(array[0]).text(), 
         "released":$(array[1]).text(), 
         "actors":$(array[2]).text(), 
@@ -68,18 +106,16 @@ class MyApplication {
         });
     }
 
-    onError() {
-        console.error('Error getting resources');
-    }
 
     renderMovieRow(movie) {
-        const {Title, Released, Actors, Director, Poster, imdbID, imdbRating} = movie;                      
+        const {title, released, actors, poster, imdbID, imdbRating} = movie;
+        //convert sql date to string    
+        const date = released.toString().slice(0,10);                   
         $('#myTbody').append(`<tr data-id="${imdbID}">
-                        <td>${Title}</td>
-                        <td>${Released}</td>
-                        <td>${Actors}</td>
-                        <td>${Director}</td>
-                        <td><img src="${Poster}" class="imgPoster"></td>
+                        <td>${title}</td>
+                        <td>${date}</td>
+                        <td>${actors}</td>
+                        <td><img src="${poster}" class="imgPoster"></td>
                         <td><a href="https://www.imdb.com/title/${imdbID}/" target="_blank">Link</a></td>
                         ${this.addStarRating(imdbRating)}
                         <td><button type="button" class="btn btn-secondary grey removeRow">Remove</button></td>
@@ -101,16 +137,16 @@ class MyApplication {
         return toAppend;         
     }
 
-    addEventListnerAddMovie() {
-        let self = this;
-        console.log(this);
-        $('#addMovie').on('click', function() {
-            const inputTitle = $('#recipient-name').val();  
-            console.log("click");         
-            self.getMovie(inputTitle);//ajax call
-            $("#exampleModal").modal('toggle');
-        });
-    }
+    // addEventListnerAddMovie() {
+    //     let self = this;
+    //     console.log(this);
+    //     $('#addMovie').on('click', function() {
+    //         const inputTitle = $('#recipient-name').val();  
+    //         console.log("click");         
+    //         self.getMovie(inputTitle);//ajax call
+    //         $("#exampleModal").modal('toggle');
+    //     });
+    // }
 
     addEventListnerHideModal() {
         $('#exampleModal').on('hidden.bs.modal', function () {
@@ -120,12 +156,9 @@ class MyApplication {
 
     addEventListnerRemoveMovie() {
         let self = this;
-        console.log(self);
         $('#myTable').on('click', '.removeRow', function(){
             let childrenArray1 = $(this).parent().closest('tr').children();
-            const title = $(childrenArray1[0]).text()
-            console.log(title);
-            const id = button.closest('tr').attr('data-id');
+            const id = $('.removeRow').closest('tr').attr('data-id');
             console.log('id from remove', id);
             self.deleteMovie(id);
             $(this).parent().closest('tr').remove();
@@ -134,7 +167,6 @@ class MyApplication {
 
     addEventListnerEditInModal() {
         let self = this;
-        console.log(self);
         $("#exampleModalEdit").on('show.bs.modal', function (event) {
             const button = $(event.relatedTarget); // Button that triggered the modal
             const row = button.closest('tr'); // selected row
@@ -153,18 +185,19 @@ class MyApplication {
     fillUpdateModalInputs(childrenArray) {
         console.log(childrenArray);
         //fill input modal inputs
-        // $("#edit-title").val($(childrenArray[0]).text());  
+        $("#edit-title").val($(childrenArray[0]).text());  
         $("#edit-released").val($(childrenArray[1]).text());  
         $("#edit-actors").val($(childrenArray[2]).text());  
-        $("#edit-director").val($(childrenArray[3]).text()); 
+        // $("#edit-director").val($(childrenArray[3]).text()); 
     }
 
     updateRowWithInputsFromModal(childrenArray, id) {
         //update row data           
-        // childrenArray.eq(0).text($("#edit-title").val());
+        childrenArray.eq(0).text($("#edit-title").val());
+        console.log('in update',$("#edit-title").val());
         childrenArray.eq(1).text($("#edit-released").val());
         childrenArray.eq(2).text($("#edit-actors").val());
-        childrenArray.eq(3).text($("#edit-director").val());
+        // childrenArray.eq(3).text($("#edit-director").val());
         this.editMovieInDb(childrenArray,id);
         $("#exampleModalEdit").modal('toggle');
     }

@@ -16,18 +16,27 @@
     <div class="container">
         <div class="row">
           <div class="col">
-            <table class="table" id="myTable">
+            <table class="table table-hover" id="myTableDirectors">
                 <thead>
                   <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Released</th>
-                    <th scope="col">Actors</th>
-                    <th scope="col">Director</th>
-                    <th scope="col">Poster</th>
-                    <th scope="col">Imdb Link</th>
-                    <th scope="col">Imdb Rating</th>
-                    <th scope="col">Remove</th>
-                    <th scope="col">Edit</th>
+                    <th class="col-2" scope="col">Director name</th>
+                    <th scope="col">Date of birth</th>
+                  </tr>
+                </thead>
+                <tbody id="myTbodyDirectors">
+                </tbody>
+              </table>
+              <table class="table" id="myTable">
+                <thead>
+                  <tr>
+                    <th class="col-1" scope="col">Title</th>
+                    <th class="col-1" scope="col">Released</th>
+                    <th class="col-2" scope="col">Actors</th>
+                    <th class="col-4" scope="col">Poster</th>
+                    <th class="col-1" scope="col">Imdb Link</th>
+                    <th class="col-1" scope="col">Imdb Rating</th>
+                    <th class="col-1" scope="col">Remove</th>
+                    <th class="col-1" scope="col">Edit</th>
                   </tr>
                 </thead>
                 <tbody id="myTbody">
@@ -36,32 +45,6 @@
           </div>
         </div>
         <div class="row">
-          <div class="col">
-              <!-- add modal -->
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Add movie from OMDB</button>
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Enter movie title</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form onsubmit="return false;">
-                        <div class="mb-3">
-                            <label for="recipient-name" class="col-form-label">Title:</label>
-                            <input type="text" class="form-control" id="recipient-name">
-                        </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="addMovie">Search and add</button>
-                    </div>
-                    </div>
-                </div>
-            </div>
-            <!-- end of add modal -->
           </div>
           <div class="row">
             <div class="col">
@@ -76,14 +59,14 @@
                       <div class="modal-body">
                           <form>
                           <div class="mb-3">
-                              <!-- <label for="edit-title" class="col-form-label">Title:</label>
-                              <input type="text" class="form-control" id="edit-title"> -->
+                              <label for="edit-title" class="col-form-label">Title:</label>
+                              <input type="text" class="form-control" id="edit-title">
                               <label for="edit-released" class="col-form-label">Released:</label>
                               <input type="text" class="form-control" id="edit-released">
                               <label for="edit-actors" class="col-form-label">Actors:</label>
                               <input type="text" class="form-control" id="edit-actors">
-                              <label for="edit-director" class="col-form-label">Director:</label>
-                              <input type="text" class="form-control" id="edit-director">
+                              <!-- <label for="edit-director" class="col-form-label">Director:</label>
+                              <input type="text" class="form-control" id="edit-director"> -->
                           </div>
                           </form>
                       </div>
