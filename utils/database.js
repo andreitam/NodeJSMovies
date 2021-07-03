@@ -5,6 +5,7 @@ const promisify = function(conn, sqlQueryString) {
         conn.query(sqlQueryString, function (err, result) {
             if (err) {
                 reject(err);
+                return;
             }
             resolve(result);
         });
